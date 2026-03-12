@@ -80,9 +80,7 @@ client.on('interactionCreate', async (interaction) => {
       console.log('Dados recebidos:', data);
 
       // Procura o canal pelo nome
-      const canal = interaction.guild.channels.cache.find(
-        (channel) => channel.name === 'reativações'
-      );
+    const canal = interaction.guild.channels.cache.get("992592194143789136"); // ID do canal "reativações"
 
       if (canal) {
         await canal.send(`
