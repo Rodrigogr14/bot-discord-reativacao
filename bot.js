@@ -11,7 +11,7 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds]
 });
 
-client.once('clientReady', () => {
+client.once('ready', () => {
   console.log(`Bot iniciado como ${client.user.tag}`);
 });
 
@@ -64,7 +64,6 @@ client.on('interactionCreate', async (interaction) => {
 
   // envio do formulário
   if (interaction.isModalSubmit() && interaction.customId === 'formReativacao') {
-
     const data = {
       crm: interaction.fields.getTextInputValue('crm'),
       estabelecimento: interaction.fields.getTextInputValue('estabelecimento'),
@@ -73,7 +72,23 @@ client.on('interactionCreate', async (interaction) => {
       observacoes: interaction.fields.getTextInputValue('obs')
     };
 
-    console.log("Dados recebidos:", data);
+    const canal = interaction.guild.channels.cache.find(
+      channel => channel.name === "reativacoes"
+    );
+
+    if (canal) {
+      await canal.send(`
+🔄 Nova Reativação
+
+CRM: ${data.crm}
+Estabelecimento: ${data.estabelecimento}
+Plano: ${data.plano}
+Assinatura: ${data.assinatura}
+Observações: ${data.observacoes}
+
+Responsável: ${interaction.user.username}
+`);
+    }
 
     await interaction.reply({
       content: "✅ Reativação enviada com sucesso!",
