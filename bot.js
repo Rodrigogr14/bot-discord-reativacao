@@ -1,7 +1,7 @@
 require('dotenv').config();
 
-const { 
-  Client, 
+const {
+  Client,
   GatewayIntentBits,
   ModalBuilder,
   TextInputBuilder,
@@ -18,12 +18,9 @@ client.once('ready', () => {
 });
 
 client.on('interactionCreate', async (interaction) => {
-
-  // abrir formulário
-  if (interaction.isChatInputCommand()) {
-
-    if (interaction.commandName === 'reativacao') {
-
+  try {
+    // COMANDO /reativacao -> abre o formulário
+    if (interaction.isChatInputCommand() && interaction.commandName === 'reativacao') {
       const modal = new ModalBuilder()
         .setCustomId('formReativacao')
         .setTitle('Formulário de Reativação');
@@ -43,17 +40,20 @@ client.on('interactionCreate', async (interaction) => {
       const plano = new TextInputBuilder()
         .setCustomId('plano')
         .setLabel('Plano')
-        .setStyle(TextInputStyle.Short);
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true);
 
       const assinatura = new TextInputBuilder()
         .setCustomId('assinatura')
         .setLabel('Assinatura gerada? (Sim/Não)')
-        .setStyle(TextInputStyle.Short);
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true);
 
       const obs = new TextInputBuilder()
         .setCustomId('obs')
         .setLabel('Observações')
-        .setStyle(TextInputStyle.Paragraph);
+        .setStyle(TextInputStyle.Paragraph)
+        .setRequired(true);
 
       modal.addComponents(
         new ActionRowBuilder().addComponents(crm),
@@ -64,26 +64,28 @@ client.on('interactionCreate', async (interaction) => {
       );
 
       await interaction.showModal(modal);
+      return;
     }
-  }
 
-  // envio do formulário
-  if (interaction.isModalSubmit() && interaction.customId === 'formReativacao') {
+    // ENVIO DO FORMULÁRIO
+    if (interaction.isModalSubmit() && interaction.customId === 'formReativacao') {
+      const data = {
+        crm: interaction.fields.getTextInputValue('crm'),
+        estabelecimento: interaction.fields.getTextInputValue('estabelecimento'),
+        plano: interaction.fields.getTextInputValue('plano'),
+        assinatura: interaction.fields.getTextInputValue('assinatura'),
+        observacoes: interaction.fields.getTextInputValue('obs')
+      };
 
-    const data = {
-      crm: interaction.fields.getTextInputValue('crm'),
-      estabelecimento: interaction.fields.getTextInputValue('estabelecimento'),
-      plano: interaction.fields.getTextInputValue('plano'),
-      assinatura: interaction.fields.getTextInputValue('assinatura'),
-      observacoes: interaction.fields.getTextInputValue('obs')
-    };
+      console.log('Dados recebidos:', data);
 
-    const canal = interaction.guild.channels.cache.find(
-      channel => channel.name === "reativacoes"
-    );
+      // Procura o canal pelo nome
+      const canal = interaction.guild.channels.cache.find(
+        (channel) => channel.name === 'reativações'
+      );
 
-    if (canal) {
-      await canal.send(`
+      if (canal) {
+        await canal.send(`
 🔄 Nova Reativação
 
 CRM: ${data.crm}
@@ -94,14 +96,32 @@ Observações: ${data.observacoes}
 
 Responsável: ${interaction.user.username}
 `);
+      } else {
+        console.log('Canal "reativações" não encontrado.');
+      }
+
+      await interaction.reply({
+        content: '✅ Reativação enviada com sucesso!',
+        ephemeral: true
+      });
     }
+  } catch (error) {
+    console.error('Erro no interactionCreate:', error);
 
-    await interaction.reply({
-      content: "✅ Reativação enviada com sucesso!",
-      ephemeral: true
-    });
+    if (interaction.isRepliable()) {
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({
+          content: '❌ Ocorreu um erro ao processar a solicitação.',
+          ephemeral: true
+        }).catch(() => {});
+      } else {
+        await interaction.reply({
+          content: '❌ Ocorreu um erro ao processar a solicitação.',
+          ephemeral: true
+        }).catch(() => {});
+      }
+    }
   }
-
 });
 
 client.login(process.env.DISCORD_TOKEN);
