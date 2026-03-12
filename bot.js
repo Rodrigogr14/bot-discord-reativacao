@@ -1,25 +1,6 @@
-require('dotenv').config();
-
-const { 
-  Client, 
-  GatewayIntentBits,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  ActionRowBuilder
-} = require('discord.js');
-
-const client = new Client({
-  intents: [GatewayIntentBits.Guilds]
-});
-
-client.once('ready', () => {
-  console.log(`Bot iniciado como ${client.user.tag}`);
-});
-
 client.on('interactionCreate', async (interaction) => {
 
-  // COMANDO /reativacao → abre o formulário
+  // Quando digitar /reativacao
   if (interaction.isChatInputCommand()) {
 
     if (interaction.commandName === 'reativacao') {
@@ -67,7 +48,7 @@ client.on('interactionCreate', async (interaction) => {
     }
   }
 
-  // ENVIO DO FORMULÁRIO
+  // Quando enviar o formulário
   if (interaction.isModalSubmit() && interaction.customId === 'formReativacao') {
 
     const data = {
@@ -78,9 +59,6 @@ client.on('interactionCreate', async (interaction) => {
       observacoes: interaction.fields.getTextInputValue('obs')
     };
 
-    console.log("Dados recebidos:", data);
-
-    // CANAL #reativacoes
     const canal = interaction.guild.channels.cache.find(
       channel => channel.name === "reativacoes"
     );
@@ -99,14 +77,10 @@ Responsável: ${interaction.user.username}
 `);
     }
 
-    // resposta privada para quem enviou
     await interaction.reply({
       content: "✅ Reativação enviada com sucesso!",
       ephemeral: true
     });
-
   }
 
 });
-
-client.login(process.env.DISCORD_TOKEN);
