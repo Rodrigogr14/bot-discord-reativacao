@@ -6,7 +6,7 @@ const commands = [
     .setDescription('Abrir formulário de reativação')
 ].map(command => command.toJSON());
 
-const rest = new REST({ version: '10' }).setToken('MTQ4MTM5MTA2NTA5NjUyMzk0Nw.GU06N4.eie9ODVJ55_xIXnnpdCVUdezyd5FYX9KvVcfvc');
+const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
 
 (async () => {
   try {
