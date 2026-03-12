@@ -1,10 +1,12 @@
+require('dotenv').config();
+
 const { 
   Client, 
-  GatewayIntentBits, 
-  ModalBuilder, 
-  TextInputBuilder, 
-  TextInputStyle, 
-  ActionRowBuilder 
+  GatewayIntentBits,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  ActionRowBuilder
 } = require('discord.js');
 
 const client = new Client({
@@ -17,53 +19,57 @@ client.once('ready', () => {
 
 client.on('interactionCreate', async (interaction) => {
 
-  // comando /reativacao
-  if (interaction.isChatInputCommand() && interaction.commandName === 'reativacao') {
+  // COMANDO /reativacao → abre o formulário
+  if (interaction.isChatInputCommand()) {
 
-    const modal = new ModalBuilder()
-      .setCustomId('formReativacao')
-      .setTitle('Formulário de Reativação');
+    if (interaction.commandName === 'reativacao') {
 
-    const crm = new TextInputBuilder()
-      .setCustomId('crm')
-      .setLabel('CRM ID')
-      .setStyle(TextInputStyle.Short)
-      .setRequired(true);
+      const modal = new ModalBuilder()
+        .setCustomId('formReativacao')
+        .setTitle('Formulário de Reativação');
 
-    const estabelecimento = new TextInputBuilder()
-      .setCustomId('estabelecimento')
-      .setLabel('Estabelecimento')
-      .setStyle(TextInputStyle.Short)
-      .setRequired(true);
+      const crm = new TextInputBuilder()
+        .setCustomId('crm')
+        .setLabel('CRM ID')
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true);
 
-    const plano = new TextInputBuilder()
-      .setCustomId('plano')
-      .setLabel('Plano')
-      .setStyle(TextInputStyle.Short);
+      const estabelecimento = new TextInputBuilder()
+        .setCustomId('estabelecimento')
+        .setLabel('Estabelecimento')
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true);
 
-    const assinatura = new TextInputBuilder()
-      .setCustomId('assinatura')
-      .setLabel('Assinatura gerada? (Sim/Não)')
-      .setStyle(TextInputStyle.Short);
+      const plano = new TextInputBuilder()
+        .setCustomId('plano')
+        .setLabel('Plano')
+        .setStyle(TextInputStyle.Short);
 
-    const obs = new TextInputBuilder()
-      .setCustomId('obs')
-      .setLabel('Observações')
-      .setStyle(TextInputStyle.Paragraph);
+      const assinatura = new TextInputBuilder()
+        .setCustomId('assinatura')
+        .setLabel('Assinatura gerada? (Sim/Não)')
+        .setStyle(TextInputStyle.Short);
 
-    modal.addComponents(
-      new ActionRowBuilder().addComponents(crm),
-      new ActionRowBuilder().addComponents(estabelecimento),
-      new ActionRowBuilder().addComponents(plano),
-      new ActionRowBuilder().addComponents(assinatura),
-      new ActionRowBuilder().addComponents(obs)
-    );
+      const obs = new TextInputBuilder()
+        .setCustomId('obs')
+        .setLabel('Observações')
+        .setStyle(TextInputStyle.Paragraph);
 
-    await interaction.showModal(modal);
+      modal.addComponents(
+        new ActionRowBuilder().addComponents(crm),
+        new ActionRowBuilder().addComponents(estabelecimento),
+        new ActionRowBuilder().addComponents(plano),
+        new ActionRowBuilder().addComponents(assinatura),
+        new ActionRowBuilder().addComponents(obs)
+      );
+
+      await interaction.showModal(modal);
+    }
   }
 
-  // envio do formulário
+  // ENVIO DO FORMULÁRIO
   if (interaction.isModalSubmit() && interaction.customId === 'formReativacao') {
+
     const data = {
       crm: interaction.fields.getTextInputValue('crm'),
       estabelecimento: interaction.fields.getTextInputValue('estabelecimento'),
@@ -72,6 +78,9 @@ client.on('interactionCreate', async (interaction) => {
       observacoes: interaction.fields.getTextInputValue('obs')
     };
 
+    console.log("Dados recebidos:", data);
+
+    // CANAL #reativacoes
     const canal = interaction.guild.channels.cache.find(
       channel => channel.name === "reativacoes"
     );
@@ -90,10 +99,12 @@ Responsável: ${interaction.user.username}
 `);
     }
 
+    // resposta privada para quem enviou
     await interaction.reply({
       content: "✅ Reativação enviada com sucesso!",
       ephemeral: true
     });
+
   }
 
 });
