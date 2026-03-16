@@ -3,12 +3,16 @@ require('dotenv').config();
 const express = require("express");
 const app = express();
 
+// Porta dinâmica do Render
+const PORT = process.env.PORT || 3000;
+
+// Endpoint para uptime
 app.get("/", (req, res) => {
   res.send("Bot Discord Online 🚀");
 });
 
-app.listen(3000, () => {
-  console.log("Servidor HTTP ativo na porta 3000");
+app.listen(PORT, () => {
+  console.log(`Servidor HTTP ativo na porta ${PORT}`);
 });
 
 const {
@@ -24,14 +28,17 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds]
 });
 
-client.once('ready', () => {
-  console.log(`Bot iniciado como ${client.user.tag}`);
+// Evento correto (discord.js v14+)
+client.once('clientReady', () => {
+  console.log(`✅ Bot iniciado como ${client.user.tag}`);
 });
 
 client.on('interactionCreate', async (interaction) => {
   try {
-    // COMANDO /reativacao -> abre o formulário
+
+    // COMANDO /reativacao
     if (interaction.isChatInputCommand() && interaction.commandName === 'reativacao') {
+
       const modal = new ModalBuilder()
         .setCustomId('formReativacao')
         .setTitle('Formulário de Reativação');
@@ -80,6 +87,7 @@ client.on('interactionCreate', async (interaction) => {
 
     // ENVIO DO FORMULÁRIO
     if (interaction.isModalSubmit() && interaction.customId === 'formReativacao') {
+
       const data = {
         crm: interaction.fields.getTextInputValue('crm'),
         estabelecimento: interaction.fields.getTextInputValue('estabelecimento'),
@@ -88,14 +96,14 @@ client.on('interactionCreate', async (interaction) => {
         observacoes: interaction.fields.getTextInputValue('obs')
       };
 
-      console.log('Dados recebidos:', data);
+      console.log("📩 Nova reativação recebida:", data);
 
-      // Procura o canal pelo nome
-    const canal = interaction.guild.channels.cache.get("992592194143789136"); // ID do canal "reativações"
+      const canal = interaction.guild.channels.cache.get("992592194143789136");
 
       if (canal) {
+
         await canal.send(`
-🔄 Nova Reativação
+🔄 **Nova Reativação**
 
 CRM: ${data.crm}
 Estabelecimento: ${data.estabelecimento}
@@ -105,27 +113,34 @@ Observações: ${data.observacoes}
 
 Responsável: ${interaction.user.username}
 `);
+
       } else {
-        console.log('Canal "reativações" não encontrado.');
+        console.log("⚠ Canal de reativações não encontrado.");
       }
 
       await interaction.reply({
-        content: '✅ Reativação enviada com sucesso!',
+        content: "✅ Reativação enviada com sucesso!",
         ephemeral: true
       });
     }
+
   } catch (error) {
-    console.error('Erro no interactionCreate:', error);
+
+    console.error("❌ Erro no interactionCreate:", error);
 
     if (interaction.isRepliable()) {
+
       if (interaction.replied || interaction.deferred) {
+
         await interaction.followUp({
-          content: '❌ Ocorreu um erro ao processar a solicitação.',
+          content: "❌ Ocorreu um erro ao processar a solicitação.",
           ephemeral: true
         }).catch(() => {});
+
       } else {
+
         await interaction.reply({
-          content: '❌ Ocorreu um erro ao processar a solicitação.',
+          content: "❌ Ocorreu um erro ao processar a solicitação.",
           ephemeral: true
         }).catch(() => {});
       }
@@ -133,4 +148,5 @@ Responsável: ${interaction.user.username}
   }
 });
 
+// Login do bot
 client.login(process.env.DISCORD_TOKEN);
