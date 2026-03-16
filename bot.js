@@ -148,5 +148,7 @@ Responsável: ${interaction.user.username}
   }
 });
 
+console.log("Token carregado:", process.env.DISCORD_TOKEN ? "SIM" : "NÃO");
+
 // Login do bot
 client.login(process.env.DISCORD_TOKEN);
