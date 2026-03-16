@@ -1,5 +1,16 @@
 require('dotenv').config();
 
+const express = require("express");
+const app = express();
+
+app.get("/", (req, res) => {
+  res.send("Bot Discord Online 🚀");
+});
+
+app.listen(3000, () => {
+  console.log("Servidor HTTP ativo na porta 3000");
+});
+
 const {
   Client,
   GatewayIntentBits,
