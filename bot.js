@@ -161,4 +161,6 @@ console.log("Tentando logar no Discord...");
 
 client.login(process.env.DISCORD_TOKEN)
   .then(() => console.log("✅ Login feito"))
-  .catch(err => console.error("❌ Erro no login:", err));
+  .catch(err => {
+    console.error("❌ Erro no login detalhado:", err);
+  });
