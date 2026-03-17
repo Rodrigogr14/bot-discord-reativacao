@@ -98,7 +98,7 @@ client.on('interactionCreate', async (interaction) => {
 
       console.log("📩 Nova reativação recebida:", data);
 
-      const canal = interaction.guild.channels.cache.get("992592194143789136");
+      const canal = interaction.guild.channels.cache.get(process.env.CANAL_REATIVACAO);
 
       if (canal) {
 

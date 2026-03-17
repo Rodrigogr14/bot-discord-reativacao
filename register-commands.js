@@ -13,7 +13,10 @@ const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
     console.log('Registrando comando...');
 
     await rest.put(
-      Routes.applicationGuildCommands('1481391065096523947', '689989595617820716'),
+     Routes.applicationGuildCommands(
+  process.env.CLIENT_ID,
+  process.env.GUILD_ID
+),
       { body: commands },
     );
 
