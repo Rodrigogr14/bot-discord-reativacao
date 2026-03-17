@@ -29,7 +29,7 @@ const client = new Client({
 });
 
 // Evento correto (discord.js v14+)
-client.once('clientReady', () => {
+client.once('ready', () => {
   console.log(`✅ Bot iniciado como ${client.user.tag}`);
 });
 
