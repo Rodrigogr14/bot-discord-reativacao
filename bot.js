@@ -148,7 +148,8 @@ Responsável: ${interaction.user.username}
   }
 });
 
-console.log("Token carregado:", process.env.DISCORD_TOKEN ? "SIM" : "NÃO");
+console.log("Tentando logar no Discord...");
 
-// Login do bot
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN)
+  .then(() => console.log("✅ Login feito"))
+  .catch(err => console.error("❌ Erro no login:", err));
